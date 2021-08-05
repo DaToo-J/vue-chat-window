@@ -1,17 +1,19 @@
 <template>
   <div class="main">
-    <!-- 信息展示 -->
-    <div v-for="item of msg" :key="item.date">
-      <div v-if="item.self" class="chatting-item self">
-        <div class="msg-date"> {{ item.date }}</div>
-        <div class="msg-from"> <img src="../img/logo2.svg" alt="" /> </div>
-        <div class="msg-content">{{ item.content }}</div>
-      </div>
+    <div class="chatting-content" ref="chattingContent">
+      <!-- 信息展示 -->
+      <div v-for="item of msg" :key="item.date">
+        <div v-if="item.self" class="chatting-item self">
+          <div class="msg-date"> {{ item.date }}</div>
+          <div class="msg-from"> <img src="../img/logo2.svg" alt="" /> </div>
+          <div class="msg-content">{{ item.content }}</div>
+        </div>
 
-      <div v-else class="chatting-item other">
-        <div class="msg-date"> {{ item.date }}</div>
-        <div class="msg-from"> <img src="../img/logo1.svg" alt="" /> </div>
-        <div class="msg-content">{{ item.content }}</div>
+        <div v-else class="chatting-item other">
+          <div class="msg-date"> {{ item.date }}</div>
+          <div class="msg-from"> <img src="../img/logo1.svg" alt="" /> </div>
+          <div class="msg-content">{{ item.content }}</div>
+        </div>
       </div>
     </div>
     
@@ -36,12 +38,16 @@ export default {
     };
   },
   mounted() {
+    // 滚动条置底
+    this.$refs.chattingContent.scrollTop = this.$refs.chattingContent.scrollHeight;
+
     // ws 连接对象
     this.ws = new WebSocket("ws://localhost:8999/message");
 
     // 建立 ws 连接
     this.ws.onopen = (event) => {
       console.log("Successfully connected to the echo websocket server...", event)
+      this.handleScroll()
     }
 
     // 接收消息
@@ -51,6 +57,9 @@ export default {
         content: event.data,
         self: false,
       });
+
+      // 要用 nextTick 设置 scrollTop 才不会失效
+      this.handleScroll()
     }
   },
   watch: {
@@ -60,28 +69,32 @@ export default {
   },
   methods: {
     send() {
+      // 发送消息
       this.msg.push({
         date: this.moment().format("YYYY-MM-DD HH:mm:ss"),
         content: this.inputContent,
         self: true,
       });
-
-      // 发送消息
+      
       this.ws.send(this.inputContent);
-
+      this.handleScroll()
       this.inputContent = ""
     },
+
+    handleScroll(){
+      this.$nextTick(() => {
+        this.$refs.chattingContent.scrollTop = this.$refs.chattingContent.scrollHeight;
+      })
+    }
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.main {
-  position: relative;
-  overflow: hidden;
+.main{
   background-color: #eee;
-  height: 100%;
+  height: 1050px;
   width: 40%;
   margin: auto;
 }
@@ -89,14 +102,14 @@ export default {
 .chatting-content {
   flex: 1;
   width: 100%;
+  margin: auto;
   height: 1000px;
   background-color: rgba(0, 0, 0, 0.1);
-  /* overflow: auto; */
+  overflow: auto;
 }
 
 .chatting-item {
   padding: 10px;
-  width: 100%;
   display: inline;
 }
 
@@ -154,18 +167,17 @@ img {
 
 /* 输入区域 */
 .chatting-input {
-  position: absolute;
+  position: relative;
   bottom: 5px;
   display: flex;
-  /* height: 36px; */
   width: 100%;
+  margin-top: 12px;
 }
 
 .chatting-input .textarea {
   flex: 1;
   padding-left: 5px;
   padding-right: 3px;
-  /* height: 40px; */
   font-size: 1.4rem;
 }
 
