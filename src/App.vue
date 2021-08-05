@@ -1,28 +1,33 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <Layout style="height:1000px;width:100%;">
+      <Header>
+        <Menu mode="horizontal" theme="dark" >
+          <MenuItem to="/chat" name='chat'>
+            <Tooltip content="问答" trigger="hover" placement="right" transfer>
+              <Icon type="ios-cube-outline"></Icon>&nbsp;问答
+            </Tooltip>
+          </MenuItem>
+        </Menu>
+      </Header>
+      <Layout>
+        <router-view></router-view>
+      </Layout>
+    </Layout>
+
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+// import Chat from './components/Chat.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
